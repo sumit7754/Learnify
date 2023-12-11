@@ -2,6 +2,7 @@ import Course from '../models/course.model.js';
 import AppError from '../utils/error.util.js';
 import cloudinary from 'cloudinary';
 import fs from 'fs/promises';
+import asyncHandler from 'express-async-handler'; // Import asyncHandler
 
 const getAllCourses = async (req, res, next) => {
   try {
@@ -19,7 +20,7 @@ const getAllCourses = async (req, res, next) => {
 
 const getLecturesByCourseId = async (req, res, next) => {
   try {
-    const { id } = req.params; // Use req.params instead of req.param
+    const { id } = req.params;
     const course = await Course.findById(id);
     res.status(200).json({
       status: true,
@@ -38,7 +39,6 @@ const createCourse = async (req, res, next) => {
   }
 
   try {
-    // if exist and then create instance
     const course = await Course.create({
       title,
       description,
@@ -47,7 +47,7 @@ const createCourse = async (req, res, next) => {
     });
 
     if (!course) {
-      return next(new AppError('course could not be created, please try again', 500));
+      return next(new AppError('Course could not be created, please try again', 500));
     }
 
     if (req.file) {
@@ -66,7 +66,7 @@ const createCourse = async (req, res, next) => {
 
       res.status(200).json({
         status: true,
-        message: 'course created successfully',
+        message: 'Course created successfully',
         course,
       });
     }
@@ -76,12 +76,106 @@ const createCourse = async (req, res, next) => {
 };
 
 const updateCourse = async (req, res, next) => {
-  // Implement your update logic here
+  try {
+    const { id } = req.params;
+    const course = await Course.findById(id);
+
+    if (!course) {
+      return next(new AppError('Course with given Id does not exist', 500));
+    }
+
+    const updatedCourse = await Course.updateOne(
+      { _id: id },
+      req.body,
+      { runValidators: true }
+    );
+
+    if (!updatedCourse) {
+      return next(new AppError('Failed to update course', 500));
+    }
+
+    res.status(200).json({
+      status: true,
+      message: 'Course updated successfully',
+      course: updatedCourse,
+    });
+  } catch (error) {
+    return next(new AppError(error.message, 500));
+  }
 };
 
 const removeCourse = async (req, res, next) => {
-  // Implement your remove logic here
+  try {
+    const { id } = req.params;
+    const course = await Course.findById(id);
+    if (!course) {
+      return next(new AppError('Course with given id does not exist', 500));
+    }
+    await Course.findByIdAndDelete(id);
+
+    res.status(200).json({
+      status: true,
+      message: 'Deleted successfully',
+    });
+  } catch (error) {
+    return next(new AppError(error.message, 500));
+  }
 };
+
+const addLectureToCourseById = asyncHandler(async (req, res, next) => {
+  const { title, description } = req.body;
+  const { id } = req.params;
+
+  let lectureData = {};
+
+  if (!title || !description) {
+    return next(new AppError('Title and Description are required', 400));
+  }
+
+  const course = await Course.findById(id);
+
+  if (!course) {
+    return next(new AppError('Invalid course id or course not found.', 400));
+  }
+
+  if (req.file) {
+    try {
+      const result = await cloudinary.v2.uploader.upload(req.file.path, {
+        folder: 'lms',
+        chunk_size: 50000000,
+        resource_type: 'video',
+      });
+
+      if (result) {
+        lectureData.public_id = result.public_id;
+        lectureData.secure_url = result.secure_url;
+      }
+
+      fs.rm(req.file.path);
+    } catch (error) {
+      for (const file of await fs.readdir('uploads/')) {
+        await fs.unlink(path.join('uploads/', file));
+      }
+
+      return next(
+        new AppError(
+          JSON.stringify(error) || 'File not uploaded, please try again',
+          400
+        )
+      );
+    }
+  }
+
+  // Add the lectureData to the lectures array of the course
+  course.lectures.push(lectureData);
+  await course.save();
+
+  res.status(200).json({
+    status: true,
+    message: 'Lecture added successfully',
+    lectureData,
+  });
+});
 
 export {
   getAllCourses,
@@ -89,4 +183,5 @@ export {
   createCourse,
   updateCourse,
   removeCourse,
+  addLectureToCourseById, // Fixed the function name in the export
 };

@@ -12,7 +12,7 @@ const cookieOptions = {
 };
 
 const register = async (req, res, next) => {
-    const { fullName, email, password } = req.body;
+    const { fullName, email, password , role } = req.body;
 
     if (!email || !fullName || !password) {
         return next(new AppError('All fields are required', 400));
@@ -29,6 +29,7 @@ const register = async (req, res, next) => {
         fullName,
         email,
         password,
+        role,
         avatar: {
             public_id: email,
             secure_url: 'https://res.cloudinary.com/du9jzqlpt/image/upload/v1674647316/avatar_drzgxv.jpg',
