@@ -177,6 +177,8 @@ const addLectureToCourseById = asyncHandler(async (req, res, next) => {
   });
 });
 
+
+
 export {
   getAllCourses,
   getLecturesByCourseId,
