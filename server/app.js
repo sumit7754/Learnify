@@ -1,39 +1,45 @@
-import express from "express";
+import express from 'express';
 import cors from 'cors';
-import cookieParser from "cookie-parser";
-import morgan from "morgan";
-import userRoute from "./routes/user.route.js"
-import courseRoute from "./routes/course.route.js"
-import errorMiddleware from "./middleware/error.middleware.js";
+import cookieParser from 'cookie-parser';
+import morgan from 'morgan';
+import userRoute from './routes/user.route.js';
+import courseRoute from './routes/course.route.js';
+import errorMiddleware from './middleware/error.middleware.js';
 
 const app = express();
 
-// middleare
-// convert into json
+// Middleware
 app.use(express.json());
-app.use(express.urlencoded({extended:true}))
-
-// for fronted 
-app.use(cors({
-    origin: [process.env.frontend_URL], 
-    credentials: true
-}));
-
-// pass token to cookie
+app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(morgan('dev'));
 
-app.use('/api/v1/user',userRoute);
-app.use('/api/v1/course',courseRoute);
+// CORS configuration
+const allowedOrigins = ['http://localhost:3000'];
+app.use(
+  cors({
+    origin: allowedOrigins,
+    credentials: true,
+  })
+);
 
+// Routes
+app.use('/api/v1/user', userRoute);
+app.use('/api/v1/course', courseRoute);
+
+// Ping route
 app.use('/ping', (req, res) => {
-    res.send('pong');
+  res.send('pong');
 });
 
-// app.all('*', (req, res) => {
-//     res.send('OOPS!! 404 page not found');
-// });
+// Handle 404 errors
+app.use((req, res, next) => {
+  const error = new Error('Not Found');
+  error.status = 404;
+  next(error);
+});
 
+// Error middleware
 app.use(errorMiddleware);
 
 export default app;
