@@ -16,7 +16,7 @@ function HomePage() {
             cost.
           </p>
           <div className="space-x-6">
-            <Link to="">
+            <Link to="/courses">
               <button className="bg-yellow-500  rounded-lg hover:bg-yellow-600 trasition ease-in-out duration-300 px-3 py-4">
                 Explore Courses
               </button>

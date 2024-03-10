@@ -15,22 +15,17 @@ app.use(cookieParser());
 app.use(morgan('dev'));
 
 // CORS configuration
-const allowedOrigins = ['http://localhost:3000'];
+const allowedOrigins = ['http://localhost:3000/'];
 app.use(
   cors({
     origin: allowedOrigins,
     credentials: true,
-  })
+  }),
 );
 
 // Routes
 app.use('/api/v1/user', userRoute);
-app.use('/api/v1/course', courseRoute);
-
-// Ping route
-app.use('/ping', (req, res) => {
-  res.send('pong');
-});
+app.use('/api/v1/courses', courseRoute);
 
 // Handle 404 errors
 app.use((req, res, next) => {

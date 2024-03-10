@@ -32,10 +32,10 @@ const getLecturesByCourseId = async (req, res, next) => {
   }
 };
 
-const createCourse = async (req, res, next) => {
+const createCourse = asyncHandler(async (req, res, next) => {
   const { title, description, category, createdBy } = req.body;
   if (!title || !description || !category || !createdBy) {
-    return next(new AppError('All fields are required', 400));
+    return next(new AppError(`All fields are required ${req.body}`, 400));
   }
 
   try {
@@ -58,11 +58,10 @@ const createCourse = async (req, res, next) => {
       if (result) {
         course.thumbnail.public_id = result.public_id;
         course.thumbnail.secure_url = result.secure_url;
+        await course.save();
       }
 
-      await fs.rm(req.file.path);
-
-      await course.save();
+      await fs.rm(req.file.path); // Remove the temporary file after upload
 
       res.status(200).json({
         status: true,
@@ -71,9 +70,9 @@ const createCourse = async (req, res, next) => {
       });
     }
   } catch (error) {
-    return next(new AppError(error.message, 500));
+    next(new AppError(error.message, 500));
   }
-};
+});
 
 const updateCourse = async (req, res, next) => {
   try {
@@ -84,11 +83,7 @@ const updateCourse = async (req, res, next) => {
       return next(new AppError('Course with given Id does not exist', 500));
     }
 
-    const updatedCourse = await Course.updateOne(
-      { _id: id },
-      req.body,
-      { runValidators: true }
-    );
+    const updatedCourse = await Course.updateOne({ _id: id }, req.body, { runValidators: true });
 
     if (!updatedCourse) {
       return next(new AppError('Failed to update course', 500));
@@ -157,12 +152,7 @@ const addLectureToCourseById = asyncHandler(async (req, res, next) => {
         await fs.unlink(path.join('uploads/', file));
       }
 
-      return next(
-        new AppError(
-          JSON.stringify(error) || 'File not uploaded, please try again',
-          400
-        )
-      );
+      return next(new AppError(JSON.stringify(error) || 'File not uploaded, please try again', 400));
     }
   }
 
@@ -176,8 +166,6 @@ const addLectureToCourseById = asyncHandler(async (req, res, next) => {
     lectureData,
   });
 });
-
-
 
 export {
   getAllCourses,

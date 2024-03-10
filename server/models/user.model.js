@@ -1,7 +1,7 @@
 import { Schema, model } from 'mongoose';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import crypto from "crypto";
+import crypto from 'crypto';
 
 const userSchema = new Schema(
   {
@@ -28,10 +28,7 @@ const userSchema = new Schema(
       minlength: [8, 'Password must be at least 8 characters'],
       select: false, // Will not select password upon looking up a document
     },
-    subscription: {
-      id: String,
-      status: String,
-    },
+
     avatar: {
       public_id: {
         type: String,
@@ -47,14 +44,14 @@ const userSchema = new Schema(
     },
     forgotPasswordToken: String,
     forgotPasswordExpiry: Date,
-    subscription :{
-      id:String,
-      status:String
-    }
+    subscription: {
+      id: String,
+      status: String,
+    },
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 // Hashes password before saving to the database
@@ -79,7 +76,7 @@ userSchema.methods = {
         process.env.JWT_SECRET,
         {
           expiresIn: process.env.JWT_EXPIRY,
-        }
+        },
       );
     } catch (error) {
       throw new Error('Error generating JWT token');
@@ -91,17 +88,13 @@ userSchema.methods = {
     const resetToken = crypto.randomBytes(20).toString('hex');
 
     // Again using crypto module to hash the generated resetToken with sha256 algorithm and storing it in database
-    this.forgotPasswordToken = crypto
-      .createHash('sha256')
-      .update(resetToken)
-      .digest('hex');
+    this.forgotPasswordToken = crypto.createHash('sha256').update(resetToken).digest('hex');
 
     // Adding forgot password expiry to 15 minutes
     this.forgotPasswordExpiry = Date.now() + 15 * 60 * 1000;
 
     return resetToken;
   },
-
 };
 
 const User = model('User', userSchema);
