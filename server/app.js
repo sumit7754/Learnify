@@ -4,6 +4,7 @@ import cookieParser from 'cookie-parser';
 import morgan from 'morgan';
 import userRoute from './routes/user.route.js';
 import courseRoute from './routes/course.route.js';
+import paymentRoute from './routes/payment.route.js';
 import errorMiddleware from './middleware/error.middleware.js';
 
 const app = express();
@@ -26,6 +27,7 @@ app.use(
 // Routes
 app.use('/api/v1/user', userRoute);
 app.use('/api/v1/courses', courseRoute);
+app.use('/api/v1/payments', paymentRoute);
 
 // Handle 404 errors
 app.use((req, res, next) => {
