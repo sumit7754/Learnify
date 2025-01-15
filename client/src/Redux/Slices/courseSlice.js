@@ -1,23 +1,35 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import toast from 'react-hot-toast';
-import axiosInstance from '../../Helper/axiosInstance';
+import { toast } from 'react-hot-toast';
 
-export const getCourseData = createAsyncThunk('/course/get', async () => {
+import axiosInstance from '../../Helpers/axiosInstance';
+
+const initialState = {
+  courseData: [],
+};
+
+export const getAllCourses = createAsyncThunk('/course/get', async () => {
   try {
     const response = await axiosInstance.get('/courses');
-    toast.promise(Promise.resolve(response.data.courses), {
-      loading: 'Courses are loading...',
-      success: 'Courses loaded successfully',
-      error: 'Failed to get courses',
-    });
+    toast.success('Courses loaded successfully');
     return response.data.courses;
   } catch (error) {
-    toast.error('Failed to get courses');
+    toast.error('Failed to get the courses');
     throw error;
   }
 });
 
-export const createCourse = createAsyncThunk('/courses/create', async (data) => {
+export const deleteCourse = createAsyncThunk('/course/delete', async (id) => {
+  try {
+    const response = await axiosInstance.delete(`/courses/${id}`);
+    toast.success('Course deleted successfully');
+    return response.data;
+  } catch (error) {
+    toast.error('Failed to delete the course');
+    throw error;
+  }
+});
+
+export const createNewCourse = createAsyncThunk('/course/create', async (data) => {
   try {
     let formData = new FormData();
     formData.append('title', data?.title);
@@ -37,13 +49,11 @@ export const createCourse = createAsyncThunk('/courses/create', async (data) => 
 });
 
 const courseSlice = createSlice({
-  name: 'courseSlice',
-  initialState: {
-    courseData: [],
-  },
+  name: 'courses',
+  initialState,
   reducers: {},
   extraReducers: (builder) => {
-    builder.addCase(getCourseData.fulfilled, (state, action) => {
+    builder.addCase(getAllCourses.fulfilled, (state, action) => {
       state.courseData = action.payload;
     });
   },
