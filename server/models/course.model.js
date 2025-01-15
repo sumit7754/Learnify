@@ -25,9 +25,11 @@ const courseSchema = new Schema(
         lecture: {
           public_id: {
             type: String,
+            required: true,
           },
           secure_url: {
             type: String,
+            required: true,
           },
         },
       },
@@ -51,7 +53,7 @@ const courseSchema = new Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 const Course = model('Course', courseSchema);

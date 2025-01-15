@@ -1,4 +1,4 @@
-import mongoose, { model, Schema } from 'mongoose';
+import { model, Schema } from 'mongoose';
 
 const paymentSchema = new Schema(
   {
@@ -10,16 +10,16 @@ const paymentSchema = new Schema(
       type: String,
       required: true,
     },
-    razorpay_signatue: {
+    razorpay_signature: {
       type: String,
       required: true,
     },
   },
   {
     timestamps: true,
-  },
+  }
 );
 
-const payment = model('Payment', paymentSchema);
+const Payment = model('Payment', paymentSchema);
 
-export default payment;
+export default Payment;
