@@ -5,15 +5,10 @@ import AppError from '../utils/AppError.js';
 import { razorpay } from '../server.js';
 import Payment from '../models/Payment.model.js';
 
-/**
- * @ACTIVATE_SUBSCRIPTION
- * @ROUTE POST /api/v1/payments/subscribe
- * @ACCESS Private
- */
 export const buySubscription = asyncHandler(async (req, res, next) => {
   const { id } = req.user;
-
   const user = await User.findById(id);
+
   if (!user) return next(new AppError('Unauthorized, please login'));
   if (user.role === 'ADMIN') return next(new AppError('Admin cannot purchase a subscription', 400));
 
@@ -23,11 +18,7 @@ export const buySubscription = asyncHandler(async (req, res, next) => {
     total_count: 12,
   });
 
-  user.subscription = {
-    id: subscription.id,
-    status: subscription.status,
-  };
-
+  user.subscription = { id: subscription.id, status: subscription.status };
   await user.save();
 
   res.status(200).json({
@@ -37,11 +28,6 @@ export const buySubscription = asyncHandler(async (req, res, next) => {
   });
 });
 
-/**
- * @VERIFY_SUBSCRIPTION
- * @ROUTE POST /api/v1/payments/verify
- * @ACCESS Private
- */
 export const verifySubscription = asyncHandler(async (req, res, next) => {
   const { id } = req.user;
   const { razorpay_payment_id, razorpay_subscription_id, razorpay_signature } = req.body;
@@ -69,15 +55,10 @@ export const verifySubscription = asyncHandler(async (req, res, next) => {
   });
 });
 
-/**
- * @CANCEL_SUBSCRIPTION
- * @ROUTE POST /api/v1/payments/unsubscribe
- * @ACCESS Private
- */
 export const cancelSubscription = asyncHandler(async (req, res, next) => {
   const { id } = req.user;
-
   const user = await User.findById(id);
+
   if (user.role === 'ADMIN') {
     return next(new AppError('Admin does not need to cancel subscription', 400));
   }
@@ -112,11 +93,6 @@ export const cancelSubscription = asyncHandler(async (req, res, next) => {
   });
 });
 
-/**
- * @GET_RAZORPAY_KEY
- * @ROUTE POST /api/v1/payments/razorpay-key
- * @ACCESS Public
- */
 export const getRazorpayApiKey = asyncHandler(async (_req, res) => {
   res.status(200).json({
     success: true,
@@ -125,11 +101,6 @@ export const getRazorpayApiKey = asyncHandler(async (_req, res) => {
   });
 });
 
-/**
- * @GET_ALL_PAYMENTS
- * @ROUTE GET /api/v1/payments
- * @ACCESS Private (ADMIN)
- */
 export const allPayments = asyncHandler(async (req, res) => {
   const { count = 10, skip = 0 } = req.query;
 
