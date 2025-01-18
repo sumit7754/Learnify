@@ -3,7 +3,7 @@ import path from 'path';
 import cloudinary from 'cloudinary';
 import asyncHandler from '../middlewares/asyncHandler.middleware.js';
 import Course from '../models/course.model.js';
-import AppError from '../utils/AppError.js';
+import AppError from '../utils/appError.js';
 
 export const getAllCourses = asyncHandler(async (_req, res, next) => {
   const courses = await Course.find({}).select('-lectures');

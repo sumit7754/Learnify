@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { FiMenu } from 'react-icons/fi';
 import { AiFillCloseCircle } from 'react-icons/ai';
 import { Link, useNavigate } from 'react-router-dom';
-import Footer from '../components/Footer';
+import Footer from '../Components/Footer';
 import { useSelector, useDispatch } from 'react-redux';
 import { logout } from '../Redux/Slices/AuthSlice';
 
@@ -74,7 +74,7 @@ function HomeLayout({ children }) {
             )}
             {isLoggedIn && role === 'ADMIN' && (
               <li>
-                <Link to="/courses/create">Create Course</Link>
+                <Link to="/course/create">Create Course</Link>
               </li>
             )}
             <li>
@@ -94,6 +94,9 @@ function HomeLayout({ children }) {
                 </button>
                 <button className="btn-secondary bg-purple-800 px-4 py-1 font-semibold rounded-md">
                   <Link to="/signup">Signup</Link>
+                </button>
+                <button className="btn-secondary bg-purple-800 px-4 py-1 font-semibold rounded-md">
+                  <Link to="/testLogin">Test Login</Link>
                 </button>
               </div>
             )}
